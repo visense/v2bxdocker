@@ -7,6 +7,12 @@ if [ -z "$API_HOST" ] || [ -z "$API_KEY" ]; then
     exit 1
 fi
 
+# 设置默认证书路径（DNS 模式需要）
+if [ "$CERT_MODE" = "dns" ] && [ -z "$CERT_FILE" ]; then
+    CERT_FILE="/etc/V2bX/cert/${CERT_DOMAIN}.cer"
+    KEY_FILE="/etc/V2bX/cert/${CERT_DOMAIN}.key"
+fi
+
 # 生成 Cores 配置
 CORES_CONFIG='{"Type":"'${CORE_TYPE}'","Log":{"Level":"'${LOG_LEVEL}'","Timestamp":true},"NTP":{"Enable":false,"Server":"time.apple.com","ServerPort":0}}'
 
