@@ -17,6 +17,14 @@ ENV API_HOST="" \
     CERT_DOMAIN="" \
     CERT_FILE="" \
     KEY_FILE="" \
-    LISTEN_IP="0.0.0.0"
+    CERT_EMAIL="" \
+    CERT_PROVIDER="" \
+    LISTEN_IP="0.0.0.0" \
+    SEND_IP="0.0.0.0" \
+    TIMEOUT="30" \
+    DEVICE_ONLINE_MIN_TRAFFIC="100" \
+    LOG_LEVEL="error" \
+    ORIGINAL_PATH="" \
+    DNS_ENV=""
 
 ENTRYPOINT ["/entrypoint.sh"]
