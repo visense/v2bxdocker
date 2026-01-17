@@ -8,47 +8,20 @@ if [ -z "$API_HOST" ] || [ -z "$API_KEY" ]; then
 fi
 
 # 生成 Cores 配置
-CORES_CONFIG=$(cat <<EOF
-{
-  "Type": "${CORE_TYPE}",
-  "Log": {
-    "Level": "${LOG_LEVEL}",
-    "Timestamp": true
-  },
-  "NTP": {
-    "Enable": false,
-    "Server": "time.apple.com",
-    "ServerPort": 0
-  }
-EOF
-)
+CORES_CONFIG='{"Type":"'${CORE_TYPE}'","Log":{"Level":"'${LOG_LEVEL}'","Timestamp":true},"NTP":{"Enable":false,"Server":"time.apple.com","ServerPort":0}}'
 
 # 如果设置了 OriginalPath，添加到配置中
 if [ -n "$ORIGINAL_PATH" ]; then
   CORES_CONFIG=$(echo "$CORES_CONFIG" | jq ". + {\"OriginalPath\": \"$ORIGINAL_PATH\"}")
 fi
 
-CORES_CONFIG=$(echo "$CORES_CONFIG" | jq -c '.')
-
 # 生成 CertConfig
-CERT_CONFIG=$(cat <<EOF
-{
-  "CertMode": "${CERT_MODE}",
-  "CertDomain": "${CERT_DOMAIN}",
-  "CertFile": "${CERT_FILE}",
-  "KeyFile": "${KEY_FILE}",
-  "Email": "${CERT_EMAIL}",
-  "Provider": "${CERT_PROVIDER}"
-}
-EOF
-)
+CERT_CONFIG='{"CertMode":"'${CERT_MODE}'","CertDomain":"'${CERT_DOMAIN}'","CertFile":"'${CERT_FILE}'","KeyFile":"'${KEY_FILE}'","Email":"'${CERT_EMAIL}'","Provider":"'${CERT_PROVIDER}'"}'
 
 # 如果设置了 DNS_ENV，添加到 CertConfig
 if [ -n "$DNS_ENV" ]; then
   CERT_CONFIG=$(echo "$CERT_CONFIG" | jq ". + {\"DNSEnv\": $DNS_ENV}")
 fi
-
-CERT_CONFIG=$(echo "$CERT_CONFIG" | jq -c '.')
 
 # 生成完整的 config.json
 cat > /etc/V2bX/config.json <<EOF
