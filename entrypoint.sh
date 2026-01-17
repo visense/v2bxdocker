@@ -7,6 +7,9 @@ if [ -z "$API_HOST" ] || [ -z "$API_KEY" ]; then
     exit 1
 fi
 
+# 创建证书目录
+mkdir -p /etc/V2bX/cert
+
 # 设置默认证书路径（dns 和 self 模式需要）
 if [ "$CERT_MODE" = "dns" ] || [ "$CERT_MODE" = "self" ]; then
     if [ -z "$CERT_FILE" ]; then
