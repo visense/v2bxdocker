@@ -12,7 +12,7 @@ ghcr.io/visense/v2bxdocker:latest
 
 ### 必需
 
-- `API_HOST` - 面板地址（如：https://box.gorelay.dpdns.org）
+- `API_HOST` - 面板地址（如：https://your-panel.com）
 - `API_KEY` - 面板 API Key
 
 ### 可选
@@ -35,7 +35,7 @@ docker run -d \
   --name v2bx \
   --network host \
   --restart always \
-  -e API_HOST="https://box.gorelay.dpdns.org" \
+  -e API_HOST="https://your-panel.com" \
   -e API_KEY="your_api_key" \
   -e NODE_ID="2" \
   -e NODE_TYPE="hysteria2" \
@@ -53,7 +53,7 @@ services:
     network_mode: host
     restart: always
     environment:
-      - API_HOST=https://box.gorelay.dpdns.org
+      - API_HOST=https://your-panel.com
       - API_KEY=your_api_key
       - NODE_ID=2
       - NODE_TYPE=hysteria2
@@ -71,7 +71,7 @@ services:
 ```bash
 gcloud run deploy v2bx \
   --image ghcr.io/visense/v2bxdocker:latest \
-  --set-env-vars API_HOST=https://box.gorelay.dpdns.org,API_KEY=your_key,NODE_ID=2
+  --set-env-vars API_HOST=https://your-panel.com,API_KEY=your_key,NODE_ID=2
 ```
 
 ### Kubernetes
@@ -97,7 +97,7 @@ spec:
         image: ghcr.io/visense/v2bxdocker:latest
         env:
         - name: API_HOST
-          value: "https://box.gorelay.dpdns.org"
+          value: "https://your-panel.com"
         - name: API_KEY
           valueFrom:
             secretKeyRef:
