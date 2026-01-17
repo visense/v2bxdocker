@@ -7,26 +7,58 @@ if [ -z "$API_HOST" ] || [ -z "$API_KEY" ]; then
     exit 1
 fi
 
-# 生成 config.json
+# 生成 Cores 配置
+CORES_CONFIG=$(cat <<EOF
+{
+  "Type": "${CORE_TYPE}",
+  "Log": {
+    "Level": "${LOG_LEVEL}",
+    "Timestamp": true
+  },
+  "NTP": {
+    "Enable": false,
+    "Server": "time.apple.com",
+    "ServerPort": 0
+  }
+EOF
+)
+
+# 如果设置了 OriginalPath，添加到配置中
+if [ -n "$ORIGINAL_PATH" ]; then
+  CORES_CONFIG=$(echo "$CORES_CONFIG" | jq ". + {\"OriginalPath\": \"$ORIGINAL_PATH\"}")
+fi
+
+CORES_CONFIG=$(echo "$CORES_CONFIG" | jq -c '.')
+
+# 生成 CertConfig
+CERT_CONFIG=$(cat <<EOF
+{
+  "CertMode": "${CERT_MODE}",
+  "CertDomain": "${CERT_DOMAIN}",
+  "CertFile": "${CERT_FILE}",
+  "KeyFile": "${KEY_FILE}",
+  "Email": "${CERT_EMAIL}",
+  "Provider": "${CERT_PROVIDER}"
+}
+EOF
+)
+
+# 如果设置了 DNS_ENV，添加到 CertConfig
+if [ -n "$DNS_ENV" ]; then
+  CERT_CONFIG=$(echo "$CERT_CONFIG" | jq ". + {\"DNSEnv\": $DNS_ENV}")
+fi
+
+CERT_CONFIG=$(echo "$CERT_CONFIG" | jq -c '.')
+
+# 生成完整的 config.json
 cat > /etc/V2bX/config.json <<EOF
 {
   "Log": {
-    "Level": "${LOG_LEVEL:-error}",
+    "Level": "${LOG_LEVEL}",
     "Output": ""
   },
   "Cores": [
-    {
-      "Type": "${CORE_TYPE}",
-      "Log": {
-        "Level": "${LOG_LEVEL:-error}",
-        "Timestamp": true
-      },
-      "NTP": {
-        "Enable": false,
-        "Server": "time.apple.com",
-        "ServerPort": 0
-      }$([ -n "$ORIGINAL_PATH" ] && echo ",\n      \"OriginalPath\": \"$ORIGINAL_PATH\"" || echo "")
-    }
+    $CORES_CONFIG
   ],
   "Nodes": [
     {
@@ -35,24 +67,17 @@ cat > /etc/V2bX/config.json <<EOF
       "ApiKey": "${API_KEY}",
       "NodeID": ${NODE_ID},
       "NodeType": "${NODE_TYPE}",
-      "Timeout": ${TIMEOUT:-30},
+      "Timeout": ${TIMEOUT},
       "ListenIP": "${LISTEN_IP}",
-      "SendIP": "${SEND_IP:-0.0.0.0}",
-      "DeviceOnlineMinTraffic": ${DEVICE_ONLINE_MIN_TRAFFIC:-100},
-      "CertConfig": {
-        "CertMode": "${CERT_MODE}",
-        "CertDomain": "${CERT_DOMAIN}",
-        "CertFile": "${CERT_FILE}",
-        "KeyFile": "${KEY_FILE}",
-        "Email": "${CERT_EMAIL}",
-        "Provider": "${CERT_PROVIDER}"$([ -n "$DNS_ENV" ] && echo ",\n        \"DNSEnv\": $DNS_ENV" || echo "")
-      }
+      "SendIP": "${SEND_IP}",
+      "DeviceOnlineMinTraffic": ${DEVICE_ONLINE_MIN_TRAFFIC},
+      "CertConfig": $CERT_CONFIG
     }
   ]
 }
 EOF
 
-echo "Config generated successfully"
+echo "Config generated successfully:"
 cat /etc/V2bX/config.json
 
 # 启动 V2bX
