@@ -1,0 +1,32 @@
+version: '3'
+services:
+  # 配置生成器
+  config-generator:
+    image: ghcr.io/visense/v2bxdocker:latest
+    container_name: v2bx-config-generator
+    environment:
+      - API_HOST=https://your-panel.com
+      - API_KEY=your_api_key
+      - NODE_ID=1
+      - NODE_TYPE=hysteria2
+      - CORE_TYPE=sing
+      - CERT_MODE=none
+      - LOG_LEVEL=error
+    volumes:
+      - ./config:/config
+    restart: "no"
+
+  # V2bX 服务
+  v2bx:
+    image: ghcr.io/wyx2685/v2bx:latest
+    container_name: v2bx
+    network_mode: host
+    restart: always
+    volumes:
+      - ./config:/etc/V2bX
+    depends_on:
+      - config-generator
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "3"
